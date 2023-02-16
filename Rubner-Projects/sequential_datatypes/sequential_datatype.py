@@ -1,5 +1,4 @@
 import random
-from ctypes import Array
 
 
 class NodeInterface:
@@ -530,27 +529,14 @@ class DoubleLinkedList(SimpleLinkedList):
         super().convert(_list)
 
     def sublist(self, start_index, end_index):
-        if start_index < 0 or end_index < start_index or self.size() < end_index:
-            raise IndexError
-        counter = 0
-        temp_dll = DoubleLinkedList()
-        temp_node = self.first_node
-        while temp_node.next_node is not None and counter < end_index:
-            if start_index <= counter:
-                temp_dll.add(temp_node.content)
-            temp_node = temp_node.next_node
-            counter += 1
-        if counter < end_index:
-            temp_dll.add()
+        super().sublist()
 
     def retain_all(self, collection):
         return super().retain_all(collection)
 
 
 class ArrayNode:
-    def __init__(self, content=None, _type=None):
-        if type(content) is not _type:
-            raise TypeError
+    def __init__(self, content=None):
         self.content = content
 
 
@@ -559,22 +545,108 @@ class ArrayListIterable:
         pass
 
 
-class ArrayList:
-    def __init__(self, size: int = 25):
-        self.values: Array = ()
+class ArrayList(ListInterface):
+    __global_initiation_size = 25
 
+    def __init__(self, _type, size: int = __global_initiation_size):
+        self.__initiation_size = size
+        self.container = tuple(ArrayNode() for node in range(self.__initiation_size))
+        self.__type = _type
+        print(len(self.container))
 
-def simple_linkedlist_example(amount: int = 1000):
-    sl_list = SimpleLinkedList()
-    for i in range(amount):
-        sl_list.add(random.randint(-amount, amount))
-    for i in range(sl_list.size()):
-        print(sl_list.get(i))
-    return sl_list
+    def __iter__(self):
+        return ListIterableInterface(self)
+
+    def is_empty(self):
+        return self.size() == 0
+
+    def __contains__(self, content):
+        for node in self.container:
+            if content.__eq__(node.content):
+                return True
+        return False
+
+    def __str__(self):
+        return self.__class__.__name__ + \
+            f"<{self.__type.__name__}>({self.size()}/{len(self.container)})" + \
+            f":{[node.content for node in self.container if node.content is not None]}"
+
+    def size(self):
+        return sum(1 for node in self.container if node.content is not None)
+
+    def __resize(self, multiplier=2):
+        self.container = tuple(
+            ArrayNode(self.container[i].content if i < self.size() else None) for i in range(
+                len(self.container) * multiplier
+            )
+        )
+
+    def add(self, content: object):
+        if type(content) is not self.__type:
+            raise TypeError()
+        if self.size() == len(self.container):
+            self.__resize()
+        for node in self.container:
+            if node.content is None:
+                node.content = content
+                return
+
+    def insert(self, index: int, content: object):
+        pass
+
+    def set(self, index: int, content: object):
+        pass
+
+    def replace(self, lambda_expression, index):
+        pass
+
+    def clear(self, resize=False):
+        self.container = tuple(ArrayNode() for i in range(self.__initiation_size if resize else len(self.container)))
+
+        def remove(self, content: object):
+            pass
+
+        def pop(self, index):
+            pass
+
+        def move(self, element_index, target_index):
+            pass
+
+        def insertion_sort(self, asc=True):
+            pass
+
+        def __reversed__(self):
+            pass
+
+        def get(self, index: int):
+            pass
+
+        def get_node(self, index: int):
+            pass
+
+        def sublist(self, start_index, end_index):
+            pass
+
+        def retain_all(self, collection):
+            pass
+
+    def simple_linkedlist_example(amount: int = 1000):
+        sl_list = SimpleLinkedList()
+        for i in range(amount):
+            sl_list.add(random.randint(-amount, amount))
+        for i in range(sl_list.size()):
+            print(sl_list.get(i))
+        return sl_list
 
 
 if __name__ == "__main__":
-    node = ArrayNode()
+    arrl = ArrayList(int)
+    print(arrl)
+    for i in range(26):
+        arrl.add(i)
+    print(arrl)
+
+    # print(arrll)
     """arrl = (SimpleNode(), SimpleNode(), SimpleNode())
     print(arrl[0].content)
     arrl[0].content = 2
