@@ -47,5 +47,28 @@ def do_simple_linked_list():
     print("\n$\t")
 
 
+def first(func):
+    def wrapper(args):
+        print("hy")
+        func(args)
+
+    return wrapper
+
+
+def second(func):
+    def wrapper(args):
+        func(args)
+        print("bye")
+
+    return wrapper
+
+
+@first
+@second
+def say(name: str):
+    print(name)
+
+
 if __name__ == '__main__':
-    do_simple_linked_list()
+    # do_simple_linked_list()
+    say("tobi")

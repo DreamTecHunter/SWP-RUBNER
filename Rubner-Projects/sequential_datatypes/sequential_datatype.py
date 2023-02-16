@@ -1,18 +1,98 @@
 import random
 from ctypes import Array
 
-index_error_message = "Index is not allowed to be lower 0 or higher the size (included)"
 
-
-#   Nodes for Simple- and DoubleLinkedList
-
-class SimpleNode:
-    def __init__(self, content: object = None, next_node=None):
+class NodeInterface:
+    def __init__(self, content: object = None):
         self.content = content
+
+
+class ListIterableInterface:
+    class ListIterableInterface:
+        def __init__(self, list_interface):
+            self.__list_interface = list_interface
+            self.__index = 0
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.__index < self.__list_interface.size():
+                result = self.__list_interface.get(self.__index)
+                self.__index += 1
+                return result
+            raise StopIteration
+
+
+class ListInterface:
+    def __init__(self, _list=None):
+        pass
+
+    def __iter__(self):
+        return ListIterableInterface(self)
+
+    def is_empty(self):
+        pass
+
+    def __contains__(self, content):
+        pass
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def size(self):
+        pass
+
+    def add(self, content: object):
+        pass
+
+    def insert(self, index: int, content: object):
+        pass
+
+    def set(self, index: int, content: object):
+        pass
+
+    def replace(self, lambda_expression, index):
+        pass
+
+    def clear(self):
+        pass
+
+    def remove(self, content: object):
+        pass
+
+    def pop(self, index):
+        pass
+
+    def move(self, element_index, target_index):
+        pass
+
+    def insertion_sort(self, asc=True):
+        pass
+
+    def __reversed__(self):
+        pass
+
+    def get(self, index: int):
+        pass
+
+    def get_node(self, index: int):
+        pass
+
+    def sublist(self, start_index, end_index):
+        pass
+
+    def retain_all(self, collection):
+        pass
+
+
+class SimpleNode(NodeInterface):
+    def __init__(self, content: object = None, next_node=None):
+        super().__init__(content)
         self.next_node = next_node
 
 
-class SimpleLinkedListIterable:
+class SimpleLinkedListIterable(ListIterableInterface):
     def __init__(self, simple_linked_list):
         self.__linked_list = simple_linked_list
         self.__index = 0
@@ -28,17 +108,17 @@ class SimpleLinkedListIterable:
         raise StopIteration
 
 
-#   LinkedList-classes
-
 #   TODO:   Inspiration for which methods are needed:
 #           https://www.digitalocean.com/community/tutorials/java-list
 #   TODO: Idea, instead of temp_node.next_node use recursion
-class SimpleLinkedList:
+class SimpleLinkedList(ListInterface):
 
     #   TODO:   Constructor
 
-    def __init__(self):
+    def __init__(self, _list=None):
         self.first_node: SimpleNode = None
+        if _list is not None:
+            self.convert(_list)
 
     #   TODO:   Methods to move through the list (iterable)
 
@@ -52,7 +132,7 @@ class SimpleLinkedList:
         #   Checking if the list is empty
         return self.first_node is None
 
-    def contains(self, content):
+    def __contains__(self, content):
         #   Checking if at least one element is the same as the given content
         if not self.is_empty():
             temp_node = self.first_node
@@ -101,8 +181,8 @@ class SimpleLinkedList:
 
     def insert(self, index: int, content: object):
         #   Inserts new content on the given index
-        if index < 0 or self.size() < index:
-            raise IndexError(index_error_message)
+        if not 0 <= index < self.size():
+            raise IndexError()
         new_node = SimpleNode(content)
         if self.is_empty():
             self.first_node = new_node
@@ -121,8 +201,8 @@ class SimpleLinkedList:
 
     def set(self, index: int, content: object):
         #   Replaces old content with new content on given index
-        if index < 0 or self.size() <= index:
-            raise IndexError(index_error_message)
+        if not 0 <= index < self.size():
+            raise IndexError()
         new_node = SimpleNode(content)
         if self.is_empty():
             self.first_node = new_node
@@ -131,30 +211,30 @@ class SimpleLinkedList:
             new_node.next_node = self.first_node.next_node
             self.first_node = new_node
             return
-        counter = 0
+        counter = 1
         temp_node = self.first_node
-        while counter < index - 1 and temp_node.next_node is not None:
+        while counter < index and temp_node.next_node is not None:
             counter += 1
             temp_node = temp_node.next_node
         if temp_node.next_node.next_node is not None:
             new_node.next_node = temp_node.next_node.next_node
         temp_node.next_node = new_node
 
-    def replace(self, index, lambda_expression):
-        #   Replaces content by using lambda-expression on it.
-        self.set(index, lambda_expression(self.get(index)))
-
-    def replace_all(self, lambda_expression):
-        #   Inspiration: https://www.w3schools.com/python/python_lambda.asp
-        #   Replaces element in the list by using lambda-expression on each element.
+    def replace(self, lambda_expression, index=None):
         if self.is_empty():
             return
+        if index is not None:
+            if not 0 <= index < self.size():
+                raise IndexError()
         temp_node = self.first_node
         condition = True
+        i = 0
         while condition:
-            temp_node.content = lambda_expression(temp_node.content)
+            if index is None or index is i:
+                temp_node.content = lambda_expression(temp_node.content)
             condition = temp_node.next_node is not None
             temp_node = temp_node.next_node
+            i += 1
 
     def clear(self):
         #   Clears the list
@@ -177,7 +257,7 @@ class SimpleLinkedList:
     def pop(self, index):
         if self.is_empty():
             return
-        if index < 0 or self.size() <= index:
+        if not 0 <= index < self.size():
             raise IndexError
         output = self.first_node.content
         if index == 0:
@@ -220,13 +300,13 @@ class SimpleLinkedList:
 
     def get(self, index: int):
         #   Returns content at the given index.
-        return self.__get_node(index).content
+        return self.get_node(index).content
 
-    def __get_node(self, index: int):
+    def get_node(self, index: int):
         #   Returns node at given index.
         #   Not visible outside SimpleLinkedList-class.
-        if self.size() == 0 or index < 0 or self.size() <= index:
-            raise IndexError(index_error_message)
+        if self.size() == 0 or not 0 <= index < self.size():
+            raise IndexError()
         counter = 0
         temp_node = self.first_node
         while counter < index:
@@ -234,21 +314,15 @@ class SimpleLinkedList:
             counter += 1
         return temp_node
 
-    def to_list(self):
-        #   Returns content in a normal list.
-        if self.is_empty():
-            return ()
-        temp_node = self.first_node
-        temp = []
-        while temp_node is not None:
-            temp.append(temp_node.content)
-            temp_node = temp_node.next_node
-        return temp
+    def convert(self, _list):
+        self.clear()
+        for element in _list:
+            self.add(element)
 
     def sublist(self, start_index, end_index):
         #   Returns content between start_index (included) and end_index (excluded) as a SimpleLinkedList.
         if start_index < 0 or end_index < start_index or self.size() < end_index:
-            raise IndexError(index_error_message)
+            raise IndexError()
         counter = 0
         temp_sll = SimpleLinkedList()
         temp_node = self.first_node
@@ -276,15 +350,15 @@ class SimpleLinkedList:
         return temp_sll
 
 
-class DualNode(SimpleNode):
+class DoubleNode(SimpleNode):
     def __init__(self, content: object = None, next_node=None, previous_node=None):
         super().__init__(content=content, next_node=next_node)
         self.previous_node = previous_node
 
 
-class DualLinkedListIterable(SimpleLinkedListIterable):
-    def __init__(self, dual_linked_list):
-        super().__init__(simple_linked_list=dual_linked_list)
+class DoubleLinkedListIterable(SimpleLinkedListIterable):
+    def __init__(self, double_linked_list):
+        super().__init__(simple_linked_list=double_linked_list)
 
     def __iter__(self):
         return self
@@ -299,18 +373,32 @@ class DualLinkedListIterable(SimpleLinkedListIterable):
 
 # TODO: To finish later.
 class DoubleLinkedList(SimpleLinkedList):
-    def __init__(self):
+    def __init__(self, _list=None):
         super().__init__()
-        self.last_node: DualNode = None
+        self.last_node: DoubleNode = None
+        if _list is not None:
+            self.convert(_list)
 
     def __iter__(self):
-        return DualLinkedListIterable(self)
+        return DoubleLinkedListIterable(self)
 
     def is_empty(self):
         return super().is_empty() and self.last_node is None
 
-    def contains(self, content):
-        return super().contains()
+    def __check_empty(self, func):
+        def wrapper(func):
+            if self.is_empty():
+                return
+            func()
+
+        return wrapper
+
+    def __check_empty_add_node(self, func, node):
+        def wrapper(self, func, node):
+            pass
+
+    def __contains__(self, content):
+        super().__contains__()
 
     def __str__(self):
         return super().__str__()
@@ -319,7 +407,7 @@ class DoubleLinkedList(SimpleLinkedList):
         return super().size()
 
     def add(self, content: object):
-        new_node = DualNode(content=content)
+        new_node = DoubleNode(content=content)
         if self.is_empty():
             self.first_node = new_node
             self.last_node = new_node
@@ -329,57 +417,151 @@ class DoubleLinkedList(SimpleLinkedList):
         self.last_node = new_node
 
     def insert(self, index: int, content: object):
-        if index < self.size():
-            pass
+        if not 0 <= index < self.size():
+            raise IndexError()
+        new_node = DoubleNode(content)
+        if self.is_empty():
+            self.first_node = new_node
+            self.last_node = new_node
+        if index == 0:
+            new_node.next_node = self.first_node
+            self.first_node.previous_node = new_node
+            self.first_node = new_node
+            return
+        # if index == self.size-1:
+        counter = 1
+        temp_node = self.first_node.next_node
+        while counter < index and temp_node.next_node is not None:
+            counter += 1
+            temp_node = temp_node.next_node
+        temp_node.previous_node.next_node = new_node
+        new_node.previous_node = temp_node.previous_node
+        new_node.next_node = temp_node
+        temp_node.previous_node = new_node
 
     def set(self, index: int, content: object):
-        pass
+        if not 0 <= index < self.size():
+            raise IndexError()
+        new_node = DoubleNode(content)
+        if self.is_empty():
+            self.first_node = new_node
+            self.last_node = new_node
+        if index == 0:
+            new_node.next_node = self.first_node.next_node
+            self.first_node
+            return
+        counter = 1
+        temp_node = self.first_node.next_node
+        while counter < index and temp_node.next_node is not None:
+            counter += 1
+            temp_node = temp_node.next_node
+        new_node.previous_node = temp_node.previous_node
+        new_node.next_node = temp_node.next_node
 
-    def replace(self, index, lambda_expression):
-        pass
-
-    def replace_all(self, lambda_expression):
-        pass
+    def replace(self, lambda_expression, index=None):
+        super().replace(lambda_expression)
 
     def clear(self):
         super().clear()
         self.last_node = None
 
     def remove(self, content: object):
-        pass
+        if self.is_empty():
+            return False
+        temp_node = self.first_node
+        if temp_node.content is content:
+            self.first_node = temp_node.next_node
+            self.first_node.previous_node = None
+            return True
+        while temp_node.next_node is not None:
+            temp_node = temp_node.next_node
+            if temp_node.content is content:
+                temp_node.previous_node.next_node = temp_node.next_node
+                if temp_node.next_node is not None:
+                    temp_node.next_node.previous_node = temp_node.previous_node
+                else:
+                    self.last_node = temp_node.previous_node
+                return True
+        return False
 
     def pop(self, index):
-        pass
+        if self.is_empty():
+            return
+        if not 0 <= index < self.size():
+            raise IndexError()
+        output = self.first_node.content
+        if index == 0:
+            self.first_node = self.first_node.next_node
+            self.first_node.previous_node = None
+            return output
+        if index is self.size() - 1:
+            output = self.last_node.content
+            self.last_node = self.last_node.previous_node
+            self.last_node.next_node = None
+            return output
+        counter = 1
+        temp_node = self.first_node.next_node
+        while temp_node.next_node is not None and counter < index - 1:
+            counter += 1
+            temp_node = temp_node.next_node
+        output = temp_node.content
+        temp_node.next_node.previous_node = temp_node.previous_node
+        temp_node.previous_node.next_node = temp_node.next_node
+        return output
 
     def move(self, element_index, target_index):
-        self.insert(target_index, self.pop(element_index))
+        super().move(element_index, target_index)
 
+    # probably a better methode
     def insertion_sort(self, asc=True):
-        pass
+        super().insertion_sort()
 
     def __reversed__(self):
-        pass
+        #   Turns order of the list
+        super().__reversed__()
 
     def get(self, index: int):
-        pass
+        return super().get(index)
 
-    def __get_node(self, index: int):
-        pass
+    def get_node(self, index: int):
+        return super().get_node(index)
 
-    def to_list(self):
-        pass
+    def convert(self, _list):
+        super().convert(_list)
 
     def sublist(self, start_index, end_index):
-        pass
+        if start_index < 0 or end_index < start_index or self.size() < end_index:
+            raise IndexError
+        counter = 0
+        temp_dll = DoubleLinkedList()
+        temp_node = self.first_node
+        while temp_node.next_node is not None and counter < end_index:
+            if start_index <= counter:
+                temp_dll.add(temp_node.content)
+            temp_node = temp_node.next_node
+            counter += 1
+        if counter < end_index:
+            temp_dll.add()
 
     def retain_all(self, collection):
+        return super().retain_all(collection)
+
+
+class ArrayNode:
+    def __init__(self, content=None, _type=None):
+        if type(content) is not _type:
+            raise TypeError
+        self.content = content
+
+
+class ArrayListIterable:
+    def __init__(self):
         pass
 
 
 class ArrayList:
     def __init__(self, size: int = 25):
         self.values: Array = ()
-        print(type(self.values))
 
 
 def simple_linkedlist_example(amount: int = 1000):
@@ -391,8 +573,9 @@ def simple_linkedlist_example(amount: int = 1000):
     return sl_list
 
 
-dll = DoubleLinkedList()
-dll.add(1)
-dll.add(2)
-dll.add(3)
-print(dll)
+if __name__ == "__main__":
+    node = ArrayNode()
+    """arrl = (SimpleNode(), SimpleNode(), SimpleNode())
+    print(arrl[0].content)
+    arrl[0].content = 2
+    print(arrl[0].content)"""
