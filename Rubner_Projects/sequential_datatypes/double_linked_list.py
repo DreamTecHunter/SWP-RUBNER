@@ -42,8 +42,8 @@ class DoubleLinkedList(SimpleLinkedList):
     def __str__(self):
         return super().__str__()
 
-    def size(self):
-        return super().size()
+    def __len__(self):
+        return super().__len__()
 
     def add(self, content: object):
         new_node = DoubleNode(content=content)
@@ -76,7 +76,6 @@ class DoubleLinkedList(SimpleLinkedList):
         new_node.next_node = temp_node
         temp_node.previous_node = new_node
 
-    # TODO: Doesn't work properly
     @ListInterface.check_index
     def set(self, index: int, content: object):
         new_node = DoubleNode(content)
@@ -87,11 +86,15 @@ class DoubleLinkedList(SimpleLinkedList):
             new_node.next_node = self.first_node.next_node
             self.first_node
             return
+        if index == self.__len__():
+            self.add(content)
         counter = 1
         temp_node = self.first_node.next_node
         while counter < index and temp_node.next_node is not None:
             counter += 1
             temp_node = temp_node.next_node
+        temp_node.previous_node.next_node = new_node
+        temp_node.next_node.previous_node = new_node
         new_node.previous_node = temp_node.previous_node
         new_node.next_node = temp_node.next_node
 
@@ -129,14 +132,14 @@ class DoubleLinkedList(SimpleLinkedList):
             self.first_node = self.first_node.next_node
             self.first_node.previous_node = None
             return output
-        if index is self.size() - 1:
+        if index is self.__len__() - 1:
             output = self.last_node.content
             self.last_node = self.last_node.previous_node
             self.last_node.next_node = None
             return output
         counter = 1
         temp_node = self.first_node.next_node
-        while temp_node.next_node is not None and counter < index - 1:
+        while temp_node.next_node is not None and counter < index:
             counter += 1
             temp_node = temp_node.next_node
         output = temp_node.content
@@ -147,11 +150,10 @@ class DoubleLinkedList(SimpleLinkedList):
     def move(self, element_index, target_index):
         super().move(element_index, target_index)
 
-    # TODO: Sort-methode not working properly
     def sort(self, asc=True):
         # super().sort(asc)
         i = 0
-        while i < self.size():
+        while i < self.__len__():
             element = self.pop(i)
             j = 0
             while ((self.get(j) <= element) if asc else (self.get(j) > element)) and j < i:
@@ -172,7 +174,7 @@ class DoubleLinkedList(SimpleLinkedList):
         super().convert(_list)
 
     def sublist(self, start_index, end_index):
-        super().sublist()
+        return super().sublist(start_index, end_index)
 
     def retain_all(self, collection):
         return super().retain_all(collection)

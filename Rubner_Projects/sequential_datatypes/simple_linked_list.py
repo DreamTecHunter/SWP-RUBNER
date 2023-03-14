@@ -46,7 +46,7 @@ class SimpleLinkedList(ListInterface):
         return False
 
     def __str__(self):
-        output = super().__str__() + "(" + str(self.size()) + "):["
+        output = super().__str__() + "(" + str(self.__len__()) + "):["
         if self.is_empty():
             output += "]"
             return output
@@ -57,7 +57,7 @@ class SimpleLinkedList(ListInterface):
         output += str(temp_node.content) + "]"
         return output
 
-    def size(self):
+    def __len__(self):
         counter = 0
         temp_node = self.first_node
         while temp_node is not None:
@@ -115,7 +115,7 @@ class SimpleLinkedList(ListInterface):
     @ListInterface.check_empty
     def replace(self, lambda_expression, index=None):
         if index is not None:
-            if not 0 <= index < self.size():
+            if not 0 <= index < self.__len__():
                 raise IndexError()
         temp_node = self.first_node
         condition = True
@@ -164,7 +164,7 @@ class SimpleLinkedList(ListInterface):
 
     def sort(self, asc=True):
         i = 0
-        while i < self.size():
+        while i < self.__len__():
             element = self.pop(i)
             j = 0
             while ((self.get(j) <= element) if asc else (self.get(j) > element)) and j < i:
@@ -173,11 +173,11 @@ class SimpleLinkedList(ListInterface):
             i += 1
 
     def __reversed__(self):
-        if self.size() <= 1:
+        if self.__len__() <= 1:
             return
         counter = 0
-        while counter < self.size() - 1:
-            self.move(self.size() - 1, counter)
+        while counter < self.__len__() - 1:
+            self.move(self.__len__() - 1, counter)
             counter += 1
 
     def get(self, index: int):
@@ -196,7 +196,7 @@ class SimpleLinkedList(ListInterface):
         super().convert(_list)
 
     def sublist(self, start_index, end_index):
-        if start_index < 0 or end_index < start_index or self.size() < end_index:
+        if start_index < 0 or end_index < start_index or self.__len__() < end_index:
             raise IndexError()
         counter = 0
         temp_sll = SimpleLinkedList()
@@ -226,4 +226,3 @@ class SimpleLinkedList(ListInterface):
 
 if __name__ == "__main__":
     test_iterable(SimpleLinkedList([1, 2]))
-

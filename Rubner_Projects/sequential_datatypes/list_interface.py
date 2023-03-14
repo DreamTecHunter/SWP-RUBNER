@@ -19,7 +19,7 @@ class ListIterableInterface:
         return self
 
     def __next__(self):
-        if self.__index < self.__list_interface.size():
+        if self.__index < self.__list_interface.__len__():
             result = self.__list_interface.get(self.__index)
             self.__index += 1
             return result
@@ -35,7 +35,7 @@ class ListInterface:
         return ListIterableInterface(self)
 
     def is_empty(self):
-        return self.size() == 0
+        return self.__len__() == 0
 
     def __contains__(self, content):
         pass
@@ -43,7 +43,7 @@ class ListInterface:
     def __str__(self):
         return self.__class__.__name__
 
-    def size(self):
+    def __len__(self):
         pass
 
     def add(self, content: object):
@@ -68,7 +68,7 @@ class ListInterface:
         pass
 
     def move(self, element_index, target_index):
-        self.insert(self.pop(element_index))
+        self.insert(target_index, self.pop(element_index))
 
     def sort(self, asc=True):
         pass
@@ -94,19 +94,20 @@ class ListInterface:
         pass
 
     def check_index(func):
-        def wrapper(self, index, *args):
-            if not 0 <= index < self.size():
+        @functools.wraps(func)
+        def wrapper(self, index, *args, **kwargs):
+            if not 0 <= index < self.__len__():
                 raise IndexError
-            return func(self, index, *args)
+            return func(self, index, *args, **kwargs)
 
         return wrapper
 
     def check_empty(func):
         @functools.wraps(func)
-        def wrapper(self, *args):
+        def wrapper(self, *args, **kwargs):
             if self.is_empty():
                 return
-            return func(self, *args)
+            return func(self, *args, **kwargs)
 
         return wrapper
 
@@ -117,4 +118,3 @@ def test_iterable(l: ListInterface, length: int = 250, rand_range: int = 1000):
     print(l)
     l.sort()
     print(l)
-
