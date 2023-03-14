@@ -143,7 +143,8 @@ class DoubleLinkedList(SimpleLinkedList):
             counter += 1
             temp_node = temp_node.next_node
         output = temp_node.content
-        temp_node.next_node.previous_node = temp_node.previous_node
+        if temp_node.next_node is not None:
+            temp_node.next_node.previous_node = temp_node.previous_node
         temp_node.previous_node.next_node = temp_node.next_node
         return output
 

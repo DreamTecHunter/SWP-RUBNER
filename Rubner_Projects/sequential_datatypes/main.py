@@ -76,10 +76,6 @@ def use_lists(length: int = 100, random_range: int = 50, same_content=True, _exc
         print("\n" + ("_" * 150) + "\n")
 
 
-def do_functions_which_work(*list_types):
-    pass
-
-
 if __name__ == '__main__':
     print()
-    use_lists(30, 50, False, None, None, SimpleLinkedList, DoubleLinkedList, ArrayList)
+    use_lists(1000, 50, False, None, None, SimpleLinkedList, DoubleLinkedList, ArrayList)
